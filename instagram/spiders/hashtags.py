@@ -3,7 +3,7 @@ import re
 from scrapy import Request, FormRequest
 from time import time
 import psycopg2
-from instagram.items import InstagramHashtagItem
+from instagram.items import InstagramHashtagItem, InstagramPostItem, InstagramUserItem
 
 f = open('secret.txt', 'r')
 secret = f.read().split(',')
@@ -74,7 +74,7 @@ class hashtags(scrapy.Spider):
     allowed_domains = ['https://www.instagram.com', 'www.instagram.com']
     start_urls = []
 
-    cursor.execute('SELECT * FROM partial_hashtags_sub_one limit 1')
+    cursor.execute('SELECT * FROM partial_hashtags_sub_one')
     partials = cursor.fetchall()
     for partial in partials:
         start_urls.append("https://www.instagram.com/explore/tags/{}/".format(partial[0]))
