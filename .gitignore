@@ -1,0 +1,7 @@
+*.pyc
+/Randoms/
+/instagram/secret.txt
+/instagram/spiders/log.txt
+/instagram/spiders/secret.txt
+/instagram/scrapy_insta_data.db
+/instagram/spiders/scrapy_insta_data.db
