@@ -75,11 +75,14 @@ class hashtags(scrapy.Spider):
     start_urls = []
 
     cursor.execute('SELECT * FROM partial_hashtags_sub_one')
-    partials = cursor.fetchall()
-    for partial in partials:
-        start_urls.append("https://www.instagram.com/explore/tags/{}/".format(partial[0]))
-    print(len(start_urls))
-
+    csvs = cursor.fetchall()
+    '''
+    for csv in csvs:
+        for i in range(len(csv)-1):
+            start_urls.append("https://www.instagram.com/explore/tags/{}/".format(csv[0]))
+    '''
+    for csv in csvs:
+        start_urls.append("https://www.instagram.com/explore/tags/{}/".format(csv[0]))
     def parse(self, response):
         html = str((response.xpath("//body")).extract())
         response_url = str(response.url)
