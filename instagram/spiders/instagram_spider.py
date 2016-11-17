@@ -218,8 +218,7 @@ class InstagramSpider(scrapy.Spider):
 
     def parseUser(self, response):
         global user_counter
-        body = response.xpath("//body")
-        html = str(body.extract())
+        html = str(response.xpath("//body").extract())
 
         #commit every five users
         if user_counter % 5 == 0:

@@ -5,6 +5,7 @@
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 import psycopg2
+from instagram.items import InstagramHashtagItem, InstagramPostItem, InstagramUserItem
 
 class InstagramPipeline(object):
     def __init__(self):
@@ -20,21 +21,23 @@ class InstagramPipeline(object):
     def close_spider(self, spider):
         self.connection.commit()
         self.cursor.close()
-        self.cursor.close()
+        self.connection.close()
         print("SHUTTING DOWN!")
 
     def process_item(self, item, spider):
         self.counter += 1
         length = len(item)
-        if length == 14:
+        
+        if isinstance(item, InstagramHashtagItem):
             self.cursor.execute('INSERT INTO insta_hashtags (tag, posts, entry_time, time_to_top, code, date, width, height, comment_count, caption, likes, ownerID, isVideo, imageID) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',
                 (item["tag"], item["posts"], item["entry_time"], item["time_to_top"], item["code"], item["date"], item["width"], item["height"], item["comment_count"], item["caption"], item["likes"], item["ownerID"], item["isVideo"], item["imageID"]))
-        elif length == 12:
+        elif isinstance(item, InstagramPostItem):
             self.cursor.execute('INSERT INTO insta_posts (tag, code, date, width, height, comment_count, caption, likes, ownerID, isVideo, imageID, entry) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', 
                 (item["tag"], item["code"], item["date"], item["width"], item["height"], item["comment_count"], item["caption"], item["likes"], item["ownerID"], item["isVideo"], item["imageID"], item["entry"]))
-        elif length == 8:
+        elif isinstance(item, InstagramUserItem):
             self.cursor.execute('INSERT INTO insta_users (username, code, post_count, follower_count, follows_count, privacy, verification, entry) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)',
                 (item["username"], item["code"], item["post_count"], item["follower_count"], item["follows_count"], item["privacy"], item["verification"], item["entry"]))
         if self.counter % 10 == 0:
             self.connection.commit()
+
         return item
