@@ -34,10 +34,10 @@ def extractPostsFromPage(html, tag="FromUser"):
         height = int(re.search(r"{}(?:.+?)height\"\: ([0-9]+)".format(code), html).group(1))
         comment_count = int(re.search(r"{}(?:.+?)comments(?:.+?)([0-9]+)".format(code), html).group(1))
         caption = re.search(r"{}(?:.+?)caption\"\: \"(.+?)\"\, \"likes".format(code), html).group(1)
-        likes = int(re.search(r"{}(?:.+?)likes(?:.+?)([0-9]+)".format(code), html).group(1))
-        ownerID = int(re.search(r"{}(?:.+?)owner(?:.+?)([0-9]+)".format(code), html).group(1))
-        isVideo = re.search(r"{}(?:.+?)is_video\"\: ([a-z]+)".format(code), html).group(1)
-        imageID = int(re.search(r"{}(?:.+?)is_video(?:.+?)id\"\: \"([0-9]+)".format(code), html).group(1))
+        likes = int(re.search(r"{}(?:.+?)\", \"likes\"\: (?:.+?)count\"\: ([0-9]+)".format(code), html).group(1))
+        ownerID = int(re.search(r"{}{}(?:.+?)owner\"\: (?:.+?)id\"\: \"([0-9]+)".format(code), html).group(1))
+        isVideo = re.search(r"{}(?:.+?)likes(?:.+?)is_video\"\: ([a-z]+)".format(code), html).group(1)
+        imageID = int(re.search(r"{}(?:.+?)likes(?:.+?)owner(?:.+?)is_video(?:.+?)id\"\: \"([0-9]+)".format(code), html).group(1))
         entry = time()
 
         cursor.execute('INSERT INTO insta_posts (tag, code, date, width, height, comment_count, caption, likes, ownerID, isVideo, imageID, entry) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', 
@@ -69,7 +69,7 @@ class InstagramSpider(scrapy.Spider):
 
     def parse(self, response):
         start_urls = []
-        cursor.execute("SELECT * FROM unlogged_users WHERE id > 6000 and id < 7000")
+        cursor.execute("SELECT * FROM unlogged_users WHERE id > 26000 and id < 46000")
         codes = cursor.fetchall()
         for code in codes:
             start_urls.append("https://www.instagram.com/p/{}/".format(code[1]))
