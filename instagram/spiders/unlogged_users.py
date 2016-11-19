@@ -29,16 +29,22 @@ def extractPostsFromPage(html, tag="FromUser"):
     #matches the code to the regex to ensure all regexes are to exact image
 
     for code in url_codes:
-        date = int(re.search(r"{}(?:.+?)date\"\: ([0-9]+)".format(code), html).group(1))
-        width = int(re.search(r"{}(?:.+?)width\"\: ([0-9]+)".format(code), html).group(1))
-        height = int(re.search(r"{}(?:.+?)height\"\: ([0-9]+)".format(code), html).group(1))
-        comment_count = int(re.search(r"{}(?:.+?)comments(?:.+?)([0-9]+)".format(code), html).group(1))
-        caption = re.search(r"{}(?:.+?)caption\"\: \"(.+?)\"\, \"likes".format(code), html).group(1)
-        likes = int(re.search(r"{}(?:.+?)\", \"likes\"\: (?:.+?)count\"\: ([0-9]+)".format(code), html).group(1))
-        ownerID = int(re.search(r"{}(?:.+?)owner\"\: (?:.+?)id\"\: \"([0-9]+)".format(code), html).group(1))
-        isVideo = re.search(r"{}(?:.+?)likes(?:.+?)is_video\"\: ([a-z]+)".format(code), html).group(1)
-        imageID = int(re.search(r"{}(?:.+?)likes(?:.+?)owner(?:.+?)is_video(?:.+?)id\"\: \"([0-9]+)".format(code), html).group(1))
-        entry = time()
+        try:
+            caption = re.search(r"{}(?:.+?)caption\"\: \"(.+?)\"\, \"likes".format(code), html).group(1)
+        except AttributeError:
+            caption = ""
+        try:
+            date = int(re.search(r"{}(?:.+?)date\"\: ([0-9]+)".format(code), html).group(1))
+            width = int(re.search(r"{}(?:.+?)width\"\: ([0-9]+)".format(code), html).group(1))
+            height = int(re.search(r"{}(?:.+?)height\"\: ([0-9]+)".format(code), html).group(1))
+            comment_count = int(re.search(r"{}(?:.+?)comments(?:.+?)([0-9]+)".format(code), html).group(1))
+            likes = int(re.search(r"{}(?:.+?)\"likes\"\: (?:.+?)count\"\: ([0-9]+)".format(code), html).group(1))
+            ownerID = int(re.search(r"{}(?:.+?)owner\"\: (?:.+?)id\"\: \"([0-9]+)".format(code), html).group(1))
+            isVideo = re.search(r"{}(?:.+?)likes(?:.+?)is_video\"\: ([a-z]+)".format(code), html).group(1)
+            imageID = int(re.search(r"{}(?:.+?)likes(?:.+?)owner(?:.+?)is_video(?:.+?)id\"\: \"([0-9]+)".format(code), html).group(1))
+            entry = time()
+        except AttributeError as e:
+            log.write(str(e) + "\n" + code + "\n" + html + "\n")
 
         cursor.execute('INSERT INTO insta_posts (tag, code, date, width, height, comment_count, caption, likes, ownerID, isVideo, imageID, entry) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', 
                 (tag, code, date, width, height, comment_count, caption, likes, ownerID, isVideo, imageID, entry))
