@@ -69,7 +69,7 @@ class InstagramSpider(scrapy.Spider):
 
     def parse(self, response):
         start_urls = []
-        cursor.execute("SELECT * FROM unlogged_users WHERE id > 46000 and id < 100000")
+        cursor.execute("SELECT * FROM unlogged_users WHERE id > 146000 and id < 250000")
         codes = cursor.fetchall()
         for code in codes:
             start_urls.append("https://www.instagram.com/p/{}/".format(code[1]))
