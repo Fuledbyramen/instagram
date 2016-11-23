@@ -10,7 +10,7 @@ secret = f.read().split(',')
 conn = psycopg2.connect(secret[0])
 cursor = conn.cursor()
 
-query = 'SELECT date, likes FROM insta_posts LIMIT 50000000;'
+query = 'SELECT date, likes FROM insta_posts LIMIT 20000000;'
 cursor.execute(query)
 results = cursor.fetchall()
 
