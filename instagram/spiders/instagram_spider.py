@@ -208,7 +208,6 @@ class InstagramSpider(scrapy.Spider):
         body = response.xpath("//body")
         html = str(body.extract())
 
-        users = []
         #all non duplicate usernames from image page aka commenters and the poster
         users_in_html = list(set(re.findall(r"\"username\"\: \"(.+?)\"", html)))
         for user in users_in_html:

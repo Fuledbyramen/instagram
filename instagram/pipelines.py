@@ -10,6 +10,7 @@ from instagram.items import InstagramHashtagItem, InstagramPostItem, InstagramUs
 
 class InstagramPipeline(object):
     def __init__(self):
+        '''
         self.f = open('C:\\Users\\zachc\\Desktop\\instagram\\instagram\\spiders\\secret.txt', 'r')
         self.secret = self.f.read().split(',')
         self.connection = psycopg2.connect(self.secret[0])
@@ -18,16 +19,20 @@ class InstagramPipeline(object):
         self.cursor.execute("CREATE TABLE IF NOT EXISTS insta_posts(tag TEXT, code TEXT, date INTEGER, width SMALLINT, height SMALLINT, comment_count INTEGER, caption TEXT, likes INTEGER, ownerID BIGINT, isVideo TEXT, imageID NUMERIC(30,0), entry NUMERIC(30,10))")
         self.cursor.execute("CREATE TABLE IF NOT EXISTS insta_users(username TEXT,  code BIGINT, post_count SMALLINT, follower_count INTEGER, follows_count SMALLINT, privacy TEXT, verification TEXT, entry NUMERIC(30,10))")
         self.cursor.execute("CREATE TABLE IF NOT EXISTS insta_hashtags(tag TEXT, posts INTEGER, entry_time NUMERIC(30,10), time_to_top INTEGER, code TEXT, date INTEGER, width SMALLINT, height SMALLINT, comment_count INTEGER, caption TEXT, likes INTEGER, ownerID BIGINT, isVideo TEXT, imageID NUMERIC(30,0))")
+        '''
         self.counter = 0
 
     def close_spider(self, spider):
+        '''
         self.connection.commit()
         self.cursor.close()
         self.connection.close()
         print("SHUTTING DOWN!")
-
+        '''
+        
     def process_item(self, item, spider):
         self.counter += 1
+        '''
         length = len(item)
         
         try:
@@ -47,3 +52,4 @@ class InstagramPipeline(object):
             self.connection.commit()
 
         return item
+        '''

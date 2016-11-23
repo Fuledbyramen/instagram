@@ -1,4 +1,5 @@
 *.pyc
+/DataViz/secret.txt
 /Randoms/
 /instagram/secret.txt
 /instagram/spiders/log.txt

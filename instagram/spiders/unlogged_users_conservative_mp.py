@@ -1,10 +1,8 @@
 import scrapy
 import re
 from scrapy import Request, FormRequest
-from sqlite3 import dbapi2 as sqlite
 from time import time
 import psycopg2
-from instagram.items import InstagramHashtagItem, InstagramPostItem, InstagramUserItem
 
 
 f = open('secret.txt', 'r')
@@ -55,7 +53,7 @@ def extractPostsFromPage(html, tag="FromUser"):
 
 
 class InstagramSpider(scrapy.Spider):
-    name = 'unlogged_users_conservative'
+    name = 'mp'
     allowed_domains = ['https://www.instagram.com', 'www.instagram.com']
     start_urls = ["https://www.instagram.com"]
 
@@ -64,7 +62,8 @@ class InstagramSpider(scrapy.Spider):
     def parse(self, response):
         start_urls = []
         #5050000 and id < 5150000 To 6m tomorrow.
-        cursor.execute("SELECT * FROM unlogged_users WHERE id > 7400000 and id < 7500000")
+        #7600000 start
+        cursor.execute("SELECT * FROM unlogged_users4 WHERE id > 1760000")
         codes = cursor.fetchall()
         for code in codes:
             start_urls.append("https://www.instagram.com/p/{}/".format(code[1]))
@@ -107,31 +106,24 @@ class InstagramSpider(scrapy.Spider):
         valid = True
 
         if code > 9223372036854775807:
-            print((username + "CODE IS BROKEN \n") * 100)
+            print(username + " CODE IS BROKEN \n")
             valid = False
         if post_count > 32767:
-            print((username + "POST_COUNT IS BROKEN \n") * 100)
+            print(username + " POST_COUNT IS BROKEN \n")
             valid = False
         if follower_count > 2147483647:
-            print((username + "FOLLOWER_COUNT IS BROKEN \n") * 100)
+            print(username + " FOLLOWER_COUNT IS BROKEN \n")
             valid = False
         if follows_count > 32767:
-            print((username + "FOLLOWS_COUNT IS BROKEN \n") * 100)
+            print(username + " FOLLOWS_COUNT IS BROKEN \n")
             valid = False
         if follows_count > 32767:
-            print((username + "FOLLOWS_COUNT IS BROKEN \n") * 100)
+            print(username + " FOLLOWS_COUNT IS BROKEN \n")
             valid = False
 
         if valid:
-            item = InstagramUserItem()
-            item["username"] = username 
-            item["code"] = code 
-            item["post_count"] = post_count 
-            item["follower_count"] = follower_count 
-            item["follows_count"] = follows_count 
-            item["privacy"] = privacy 
-            item["verification"] = verification 
-            item["entry"] = entry 
-            yield item
+            cursor.execute('INSERT INTO insta_users (username, code, post_count, follower_count, follows_count, privacy, verification, entry) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)',
+                    (username, code, post_count, follower_count, follows_count, privacy, verification, entry))
 
             extractPostsFromPage(html)
+
