@@ -2,6 +2,8 @@ from random import randint
 from time import sleep
 from subprocess import call
 
+
+call(["scrapy", "version"], shell=True)
 '''
 call(["scrapy crawl unlogged_users_conservative_mp -a low='5000000' -a high='5100000'"], shell=True)
 sleep(randint(15,45))
@@ -13,5 +15,7 @@ call(["scrapy crawl unlogged_users_conservative_mp -a low='5300000' -a high='540
 sleep(randint(15,45))
 
 '''
-print("STARTING")
-call(["scrapy crawl unlogged_users_conservative_mp -a low='0' -a high='10'"], shell=True)
+#print("STARTING")
+#call(["scrapy crawl unlogged_users_conservative_mp -a low='0' -a high='10'"], shell=True)
+
+

@@ -5,6 +5,8 @@ from time import time
 import psycopg2
 from instagram.items import InstagramHashtagItem, InstagramPostItem, InstagramUserItem
 
+
+'''
 f = open('secret.txt', 'r')
 secret = f.read().split(',')
 log = open('invalidHashtags.txt', 'w')
@@ -76,11 +78,13 @@ class hashtags(scrapy.Spider):
 
     cursor.execute('SELECT * FROM partial_hashtags_sub_one')
     csvs = cursor.fetchall()
-    '''
-    for csv in csvs:
-        for i in range(len(csv)-1):
-            start_urls.append("https://www.instagram.com/explore/tags/{}/".format(csv[0]))
-    '''
+'''
+
+    #for csv in csvs:
+        #for i in range(len(csv)-1):
+            #start_urls.append("https://www.instagram.com/explore/tags/{}/".format(csv[0]))
+'''
+
     for csv in csvs:
         start_urls.append("https://www.instagram.com/explore/tags/{}/".format(csv[0]))
     def parse(self, response):
@@ -117,5 +121,5 @@ class hashtags(scrapy.Spider):
         else:
             extractPostsFromPage(html, tag)
 
-
+'''
 

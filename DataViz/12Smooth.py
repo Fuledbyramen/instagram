@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 import psycopg2
 from cycler import cycler
+from scipy.interpolate import spline
 
 
 print("starting")
@@ -12,10 +13,12 @@ secret = f.read().split(',')
 conn = psycopg2.connect(secret[0])
 cursor = conn.cursor()
 
-limit = 10000
-cursor.execute('SELECT date, likes FROM insta_posts LIMIT %s;', (limit,))
+limit = 50000000
+cursor.execute('SELECT DISTINCT ON (code) date, likes FROM insta_posts LIMIT %s;', (limit,))
 
 results = cursor.fetchall()
+cursor.close()
+conn.close()
 print("Gottem all")
 # These are the "Tableau 20" colors as RGB.    
 colors = [(31, 119, 180), (174, 199, 232), (255, 127, 14), (255, 187, 120),    
@@ -41,7 +44,7 @@ ax.spines["left"].set_visible(False)
 # Ticks on the right and top of the plot are generally unnecessary chartjunk.    
 ax.get_xaxis().tick_bottom()    
 ax.get_yaxis().tick_left()  
-ax.set_axis_bgcolor('black')  
+#ax.set_axis_bgcolor((0.15294117647058825, 0.1568627450980392, 0.13333333333333333))  
     
 # Make sure your axis ticks are large enough to be easily read.    
 # You don't want your viewers squinting to read your plot.    
@@ -52,35 +55,46 @@ plt.xticks(fontsize=14)
 #plt.xlim(0, 23)
 
 days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-week = {u : {k : [] for k in range(1440)} for u in range(7)}
+week = {u : {k : [] for k in range(0, 25, 2)} for u in range(7)}
 
 for row in results:
     day = datetime.fromtimestamp(row[0]).weekday()
     hour = datetime.fromtimestamp(row[0]).hour
     minute = datetime.fromtimestamp(row[0]).minute
-    hour_part = (hour * 60) + minute
+    if hour == 0:
+        hour_part = 0
+    else:
+        if hour % 2 == 0:
+            hour_part = hour
+        else:
+            hour_part = hour + 1
     week[day][hour_part].append(row[1])
 
 def average(x):
-	try:
-		return sum(x) / len(x)
-	except ZeroDivisionError:
-		return 0
+    try:
+        return sum(x) / len(x)
+    except ZeroDivisionError:
+        return 0
 
 hours = []
 values = []
 counter = 0
 for day, hour in week.items():
-	for i in range(1440):
-		hours.append(i)
-		values.append(average(week[day][i]))
-	plt.plot(hours, values, color=colors[counter], label=days[counter], lw=2.5)
-	hours = []
-	values = []
-	counter += 1
+    for i in range(0, 25, 2):
+        hours.append(i)
+        values.append(average(week[day][i]))
+    hours = np.array(hours)
+    values = np.array(values)
+    x_smooth = np.linspace(hours.min(), hours.max(), 200)
+    y_smooth = spline(hours, values, x_smooth)
+    print(len(x_smooth))
+    plt.plot(x_smooth, y_smooth, color=colors[counter], label=days[counter], lw=2.5)
+    hours = []
+    values = []
+    counter += 1
 
 legend = plt.legend(loc='upper left', shadow=True)
-plt.xticks(np.arange(0, 1440, 200.0))
+plt.xticks(np.arange(0, 24, 2))
 plt.xlabel('Hour of day', fontsize=14)
 plt.ylabel('Average likes', fontsize=14)
 plt.title('Average likes per hour across {} posts'.format(limit), fontsize=16)

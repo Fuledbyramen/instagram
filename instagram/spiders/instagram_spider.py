@@ -179,7 +179,6 @@ class InstagramSpider(scrapy.Spider):
             yield Request(url, callback=self.parseImage)
 
 
-
     def parseBranchHashtag(self, response):
         body = response.xpath("//body")
         html = str(body.extract())

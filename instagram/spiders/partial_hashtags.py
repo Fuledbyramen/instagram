@@ -5,6 +5,7 @@ from sqlite3 import dbapi2 as sqlite
 from time import time
 import psycopg2
 
+'''
 f = open('secret.txt', 'r')
 secret = f.read().split(',')
 log = open('invalidHashtags.txt', 'w')
@@ -106,7 +107,7 @@ class PartialHashtag(scrapy.Spider):
 
 
 
-
+'''
 
 
 
