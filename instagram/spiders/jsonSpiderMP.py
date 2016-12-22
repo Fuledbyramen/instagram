@@ -7,7 +7,21 @@ import psycopg2
 import json
 from instagram.items import InstagramHashtagItem, InstagramPostItem, InstagramPostItem2, InstagramUserItem, InstagramUserItem2
 
-'''
+
+#| TAGS LOGGED 17 | USERS LOGGED 1357 | PHOTOS LOGGED 15176 | 22 MINUTES
+# Ratios - 1.3 minutes per tag
+# 79 Users Per Tag
+# 892 Photos Per Tag
+# 689 Photos Per Minute
+
+#| TAGS LOGGED 22 | USERS LOGGED 1872 | PHOTOS LOGGED 20026 |
+#| TAGS LOGGED 22 | USERS LOGGED 1840 | PHOTOS LOGGED 18582 |
+#| TAGS LOGGED 19 | USERS LOGGED 1916 | PHOTOS LOGGED 19525 |
+#| TAGS LOGGED 21 | USERS LOGGED 1559 | PHOTOS LOGGED 17139 |
+#| TAGS LOGGED 22 | USERS LOGGED 1778 | PHOTOS LOGGED 19010 |
+
+
+
 f = open('secret.txt', 'r')
 log = open('log.txt', 'w')
 secret = f.read().split(',')
@@ -230,14 +244,20 @@ def logUser(json):
 
 
 class InstagramSpider(scrapy.Spider):
-    name = 'jsonSpider'
+    name = 'jsonSpiderMP'
     allowed_domains = ['https://www.instagram.com', 'www.instagram.com']
     start_urls = ["https://www.instagram.com/instagram/"]
 
+    def __init__(self, low, high, *args, **kwargs):
+        super(InstagramSpider, self).__init__(*args, **kwargs)
+        self.high = high
+        self.low = low
+
     def parse(self, response):
+        print(self.low + " " + self.high)
         #begins spider, needs to go to instagram first
         urls = []
-        cursor.execute("SELECT hashtag from hashtags WHERE key > 131 AND key < 151")
+        cursor.execute("SELECT hashtag from hashtags WHERE key > %s AND key < %s" % (self.low, self.high))
         hashtags = cursor.fetchall()
         for tag in hashtags:
             urls.append("https://www.instagram.com/explore/tags/{}/".format(tag[0]))
@@ -294,7 +314,7 @@ class InstagramSpider(scrapy.Spider):
         for post in j["entry_data"]["ProfilePage"][0]["user"]["media"]["nodes"]:
             logPhotoPage(post, username=response.meta["username"])
 
-'''
+
 
 
 

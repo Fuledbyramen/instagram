@@ -23,6 +23,8 @@ DOWNLOAD_DELAY = 0.2
 CONCURRENT_REQUESTS_PER_DOMAIN = 16
 CONCURRENT_REQUESTS = 32
 
+LOG_LEVEL = 'WARNING'
+
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'instagram (+http://www.yourdomain.com)'
 

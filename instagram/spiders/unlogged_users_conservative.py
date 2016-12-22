@@ -6,7 +6,7 @@ from time import time
 import psycopg2
 from instagram.items import InstagramHashtagItem, InstagramPostItem, InstagramUserItem
 
-
+'''
 f = open('secret.txt', 'r')
 log = open('log.txt', 'w')
 secret = f.read().split(',')
@@ -135,3 +135,4 @@ class InstagramSpider(scrapy.Spider):
             yield item
 
             extractPostsFromPage(html)
+'''

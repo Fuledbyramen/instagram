@@ -6,6 +6,7 @@ from time import time
 import psycopg2
 from instagram.items import InstagramHashtagItem, InstagramPostItem, InstagramUserItem
 
+'''
 #Take in hashtag names, log top posts,
 #users from posts then those users, continue on
 
@@ -56,12 +57,6 @@ def extractPostsFromPage(html, response, tag="FromUser", top_post = False):
 
     #matches the code to the regex to ensure all regexes are to exact image
     for code in url_codes:
-        '''
-        date = regexExceptionInt("{}(?:.+?)date\"\: ([0-9]+)".format(code), html)
-        imageID = regexExceptionInt("{}(?:.+?)likes(?:.+?)owner(?:.+?)is_video(?:.+?)id\"\: \"([0-9]+)".format(code), html)
-        location = regexExceptionStr("location(?:.+?)\"name\"\: \"(.+?)\"(?:.+?){}".format(code), html)
-        slug = regexExceptionStr("slug\"\: \"(.+?)\"(?:.+?){}".format(code), html)
-        '''
         try:
             width = int(re.search(r"{}(?:.+?)width\"\: ([0-9]+)".format(code), html).group(1))
             height = int(re.search(r"{}(?:.+?)height\"\: ([0-9]+)".format(code), html).group(1))
@@ -239,3 +234,4 @@ class InstagramSpider(scrapy.Spider):
             yield item
 
             extractPostsFromPage(html, response=str(response.url))
+'''

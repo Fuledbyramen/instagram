@@ -6,7 +6,7 @@ from time import time
 import psycopg2
 from instagram.items import InstagramHashtagItem, InstagramPostItem, InstagramUserItem
 
-
+'''
 f = open('secret.txt', 'r')
 log = open('log.txt', 'w')
 secret = f.read().split(',')
@@ -49,23 +49,7 @@ def extractPostsFromPage(html, tag="FromUser"):
         cursor.execute('INSERT INTO insta_posts (tag, code, date, width, height, comment_count, caption, likes, ownerID, isVideo, imageID, entry) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', 
                 (tag, code, date, width, height, comment_count, caption, likes, ownerID, isVideo, imageID, entry))
 
-        '''
-        item = InstagramPostItem()
-        item["tag"] = tag   
-        item["code"] = code   
-        item["date"] = date   
-        item["width"] = width   
-        item["height"] = height   
-        item["comment_count"] = comment_count   
-        item["caption"] = caption   
-        item["likes"] = likes   
-        item["ownerID"] = ownerID   
-        item["isVideo"] = isVideo  
-        item["imageID"] = imageID   
-        item["entry"] = entry  
 
-        return item
-        '''
     connection.commit()
 
 class InstagramSpider(scrapy.Spider):
@@ -151,3 +135,4 @@ class InstagramSpider(scrapy.Spider):
         #needs to be extra function to get the new request I guess
         html = str(response.xpath("//body").extract())
         extractPostsFromPage(html)
+'''

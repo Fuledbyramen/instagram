@@ -10,6 +10,7 @@ from instagram.items import InstagramHashtagItem, InstagramPostItem, InstagramPo
 
 class InstagramPipeline(object):
     def __init__(self):
+        '''
         self.f = open('C:\\Users\\zachc\\Desktop\\instagram\\instagram\\spiders\\secret.txt', 'r')
         self.secret = self.f.read().split(',')
         self.connection = psycopg2.connect(self.secret[0])
@@ -18,23 +19,29 @@ class InstagramPipeline(object):
         self.cursor.execute("CREATE TABLE IF NOT EXISTS insta_posts(tag TEXT, code TEXT, date INTEGER, width SMALLINT, height SMALLINT, comment_count INTEGER, caption TEXT, likes INTEGER, ownerID BIGINT, isVideo TEXT, imageID NUMERIC(30,0), entry NUMERIC(30,10))")
         self.cursor.execute("CREATE TABLE IF NOT EXISTS insta_users(username TEXT,  code BIGINT, post_count SMALLINT, follower_count INTEGER, follows_count SMALLINT, privacy TEXT, verification TEXT, entry NUMERIC(30,10))")
         self.cursor.execute("CREATE TABLE IF NOT EXISTS insta_hashtags(tag TEXT, posts INTEGER, entry_time NUMERIC(30,10), time_to_top INTEGER, code TEXT, date INTEGER, width SMALLINT, height SMALLINT, comment_count INTEGER, caption TEXT, likes INTEGER, ownerID BIGINT, isVideo TEXT, imageID NUMERIC(30,0))")
+       
         self.cursor.execute("CREATE TABLE IF NOT EXISTS insta_posts2 (key SERIAL PRIMARY KEY, tag TEXT, code TEXT, date INTEGER, width SMALLINT, height SMALLINT, commentCount INTEGER, caption TEXT, likes INTEGER, ownerID BIGINT, ownerUser TEXT, isVideo TEXT, videoViews INTEGER, imageID NUMERIC(30,0), entry NUMERIC(30,10), location TEXT, slug TEXT, userTags SMALLINT, ad BOOLEAN)")
-        self.cursor.execute("CREATE TABLE IF NOT EXISTS insta_users2 (key SERIAL PRIMARY KEY, username TEXT,  code BIGINT, post_count SMALLINT, follower_count INTEGER, follows_count SMALLINT, privacy TEXT, verification TEXT, entry NUMERIC(30,10), bio TEXT)")
+        self.cursor.execute("CREATE TABLE IF NOT EXISTS insta_users2 (key SERIAL PRIMARY KEY, username TEXT,  code BIGINT, post_count SMALLINT, follower_count INTEGER, follows_count SMALLINT, privacy BOOLEAN, verification BOOLEAN, entry NUMERIC(30,10), bio TEXT)")
         self.cursor.execute("CREATE TABLE IF NOT EXISTS insta_hashtags2 (tag TEXT, posts INTEGER, entry_time NUMERIC(30,10), time_to_top INTEGER, code TEXT, date INTEGER, width SMALLINT, height SMALLINT, comment_count INTEGER, caption TEXT, likes INTEGER, ownerID BIGINT, isVideo TEXT, imageID NUMERIC(30,0))")
 
         self.counter = 0
 
+        print("STARTING")
+        '''
 
     def close_spider(self, spider):
-        from instagram.spiders.jsonSpider import Hashtags, Users, Photos
+        from instagram.spiders.jsonSpiderMP import Hashtags, Users, Photos
+        '''
         self.connection.commit()
         self.cursor.close()
         self.connection.close()
+        '''
         print("| TAGS LOGGED {} | USERS LOGGED {} | PHOTOS LOGGED {} |".format(Hashtags, Users, Photos))
         print("SHUTTING DOWN!")
         
 
     def process_item(self, item, spider):
+        '''
         self.counter += 1
         print("Recieved")
         try:
@@ -64,4 +71,5 @@ class InstagramPipeline(object):
             self.connection.commit()
 
         return item
+        '''
         

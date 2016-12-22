@@ -4,7 +4,7 @@ from scrapy import Request, FormRequest
 from time import time
 import psycopg2
 
-
+'''
 f = open('secret.txt', 'r')
 log = open('log.txt', 'w')
 secret = f.read().split(',')
@@ -203,4 +203,4 @@ class InstagramSpider(scrapy.Spider):
                     (username, code, post_count, follower_count, follows_count, privacy, verification, entry))
 
             extractPostsFromPage(html)
-
+'''

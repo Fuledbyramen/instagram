@@ -7,7 +7,7 @@ import psycopg2
 import json
 from instagram.items import InstagramHashtagItem, InstagramPostItem, InstagramPostItem2, InstagramUserItem, InstagramUserItem2
 
-
+'''
 f = open('secret.txt', 'r')
 log = open('log.txt', 'w')
 secret = f.read().split(',')
@@ -22,6 +22,59 @@ def boolean(string):
         return False
     else:
         print("Error in boolean function. Neither true nor false.")
+
+
+def validPhoto(item):
+    if type(item["tag"]) != str or type(item["code"]) != str or  \
+        type(item["caption"]) != str or type(item["ownerUser"]) != str or \
+        type(item["isVideo"]) != str or type(item["location"]) != str or \
+        type(item["slug"]) != str:
+        return False
+    elif type(item["ad"]) != bool:
+        return False
+    elif item["width"] > 32767 or item["height"] > 32767 or \
+        item["userTags"] > 32767:
+        return False
+    elif item["date"] > 2147483647 or item["commentCount"] > 2147483647 or \
+        item["likes"] > 2147483647 or item["videoViews"] > 2147483647:
+        return False
+    elif item["ownerID"] > 9223372036854775807:
+        return False
+    elif item["imageID"] > 999999999999999999999999999999 or item["entry"] > 999999999999999999999999999999:
+        return False
+    return True
+
+
+def validUser(item):
+    if type(item["username"]) != str or type(item["verification"]) != str or  \
+        type(item["privacy"]) != str or type(item["bio"]) != str:
+        return False
+    elif item["post_count"] > 32767 or item["follows_count"] > 32767:
+        return False
+    elif item["follower_count"] > 2147483647:
+        return False
+    elif item["code"] > 9223372036854775807:
+        return False
+    elif item["entry"] > 999999999999999999999999999999:
+        return False
+    return True
+
+
+def validTag(item):
+    if type(item["tag"]) != str or type(item["code"]) != str or  \
+        type(item["isVideo"]) != str or type(item["caption"]) != str:
+        return False
+    elif item["width"] > 32767 or item["height"] > 32767:
+        return False
+    elif item["posts"] > 2147483647 or item["time_to_top"] > 2147483647 or \
+        item["date"] > 2147483647 or item["comment_count"] > 2147483647 or \
+        item["likes"] > 2147483647:
+        return False
+    elif item["ownerID"] > 9223372036854775807:
+        return False
+    elif item["entry_time"] > 999999999999999999999999999999 or item["imageID"] > 999999999999999999999999999999:
+        return False
+    return True
 
 
 def logPhoto(json, tag="FromUser"):
@@ -52,9 +105,12 @@ def logPhoto(json, tag="FromUser"):
         try:
             item["ad"] = j["is_ad"]
         except TypeError:
-            item["ad"] = False    
-        cursor.execute('INSERT INTO insta_posts2 (tag, code, date, width, height, commentCount, caption, likes, ownerID, isVideo, imageID, entry, location, slug, userTags, ad) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', 
-            (item["tag"], item["code"], item["date"], item["width"], item["height"], item["commentCount"], item["caption"], item["likes"], item["ownerID"], item["isVideo"], item["imageID"], item["entry"], item["location"], item["slug"], item["userTags"], item["ad"],))    
+            item["ad"] = False   
+        if validPhoto(item): 
+            cursor.execute('INSERT INTO insta_posts2 (tag, code, date, width, height, commentCount, caption, likes, ownerID, isVideo, imageID, entry, location, slug, userTags, ad) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', 
+                (item["tag"], item["code"], item["date"], item["width"], item["height"], item["commentCount"], item["caption"], item["likes"], item["ownerID"], item["isVideo"], item["imageID"], item["entry"], item["location"], item["slug"], item["userTags"], item["ad"],))    
+        else:
+            log.write(item)
         #yield item
 
 
@@ -75,8 +131,12 @@ def logHashtag(json, tag):
     item["ownerID"] = j["top_posts"]["nodes"][0]["owner"]["id"]
     item["isVideo"] = j["top_posts"]["nodes"][0]["is_video"]
     item["imageID"] = int(j["top_posts"]["nodes"][0]["id"])
-    cursor.execute('INSERT INTO insta_hashtags (tag, posts, entry_time, time_to_top, code, date, width, height, comment_count, caption, likes, ownerID, isVideo, imageID) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',
-        (item["tag"], item["posts"], item["entry_time"], item["time_to_top"], item["code"], item["date"], item["width"], item["height"], item["comment_count"], item["caption"], item["likes"], item["ownerID"], item["isVideo"], item["imageID"]))    
+    if validTag(item):
+        cursor.execute('INSERT INTO insta_hashtags (tag, posts, entry_time, time_to_top, code, date, width, height, comment_count, caption, likes, ownerID, isVideo, imageID) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',
+            (item["tag"], item["posts"], item["entry_time"], item["time_to_top"], item["code"], item["date"], item["width"], item["height"], item["comment_count"], item["caption"], item["likes"], item["ownerID"], item["isVideo"], item["imageID"]))    
+    else:
+        log.write(item)
+    connection.commit()
     #yield item
 
 
@@ -92,9 +152,11 @@ def logUser(json):
     item["verification"] = user["is_verified"]
     item["bio"] = user["biography"]
     item["entry"] = time()
-    cursor.execute('INSERT INTO insta_users2 (username, code, post_count, follower_count, follows_count, privacy, verification, entry, bio) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)',
-        (item["username"], item["code"], item["postCount"], item["followerCount"], item["followsCount"], item["privacy"], item["verification"], item["entry"], item["bio"]))
-    connection.commit()
+    if validUser(item):
+        cursor.execute('INSERT INTO insta_users2 (username, code, post_count, follower_count, follows_count, privacy, verification, entry, bio) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)',
+            (item["username"], item["code"], item["postCount"], item["followerCount"], item["followsCount"], item["privacy"], item["verification"], item["entry"], item["bio"]))
+    else:
+        log.write(item)
     #yield item
 
 
@@ -102,8 +164,12 @@ class InstagramSpider(scrapy.Spider):
     name = 'jsonTest'
     allowed_domains = ['https://www.instagram.com', 'www.instagram.com']
     #start_urls = ["https://www.instagram.com/p/BOQCqAOgqZE/"]
-    start_urls = ["https://www.instagram.com/nike/"]
+    
     #start_urls = ["https://www.instagram.com/explore/tags/instagood/"]
+
+    def __init__(self, name, *args, **kwargs):
+        super(InstagramSpider, self).__init__(*args, **kwargs)
+        self.start_urls = start_urls = ["https://www.instagram.com/{}/".format(name)]
 
     def parseHashtag(self, response):
         html = str((response.xpath("//body")).extract())
@@ -111,22 +177,6 @@ class InstagramSpider(scrapy.Spider):
         j = json.loads(string)
         print(j["entry_data"]["PostPage"][0]["media"]["comments"]["nodes"][0]["username"])
         print(j["entry_data"]["PostPage"][0]["media"]["comments"]["nodes"].keys())
-
-
-        '''
-        for i in j["entry_data"]["TagPage"][0]["tag"]["media"]["nodes"]:
-            print(i.keys())
-        for i in j["entry_data"]["TagPage"][0]["tag"]["top_posts"]["nodes"][1:]:
-            print(i["code"])
-        print(j["entry_data"]["TagPage"][0]["tag"]["top_posts"]["nodes"][0].keys())
-
-        #j["entry_data"]["TagPage"][0]["tag"]["top_posts"]["nodes"][0]
-        page = j["entry_data"]["TagPage"][0]["tag"]
-        tag = page["name"]
-        posts = page["media"]["count"]
-
-        #posts INTEGER, entry_time NUMERIC(30,10), time_to_top INTEGER, code TEXT, date INTEGER, width SMALLINT, height SMALLINT, comment_count INTEGER, caption TEXT, likes INTEGER, ownerID BIGINT, isVideo TEXT, imageID NUMERIC(30,0)
-        '''
 
     def parsePhoto(self, response):
         html = str((response.xpath("//body")).extract())
@@ -177,4 +227,4 @@ class InstagramSpider(scrapy.Spider):
         
 
 
-
+'''

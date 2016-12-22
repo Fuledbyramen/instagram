@@ -4,7 +4,7 @@ from scrapy import Request, FormRequest
 from time import time
 import psycopg2
 
-
+'''
 f = open('secret.txt', 'r')
 secret = f.read().split(',')
 log = open('log.txt', 'w')
@@ -327,3 +327,4 @@ class InstagramSpider(scrapy.Spider):
         #needs to be extra function to get the new request I guess
         html = str(response.xpath("//body").extract())
         extractPostsFromPage(html)
+'''
