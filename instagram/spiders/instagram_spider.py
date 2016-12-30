@@ -6,14 +6,15 @@ from time import time
 import psycopg2
 
 '''
-f = open('secret.txt', 'r')
-log = open('log.txt', 'w')
-secret = f.read().split(',')
+if __name__ == "__main__":
+    f = open('secret.txt', 'r')
+    log = open('log.txt', 'w')
+    secret = f.read().split(',')
 
-connection = psycopg2.connect(secret[0])
-cursor = connection.cursor()
+    connection = psycopg2.connect(secret[0])
+    cursor = connection.cursor()
 
-account = [secret[1], secret[2]]
+    account = [secret[1], secret[2]]
 
 user_counter = 0
 
@@ -331,5 +332,4 @@ class InstagramSpider(scrapy.Spider):
         #needs to be extra function to get the new request I guess
         html = str(response.xpath("//body").extract())
         extractPostsFromPage(html)
-
 '''

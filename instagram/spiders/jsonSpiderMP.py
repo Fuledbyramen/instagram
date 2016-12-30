@@ -21,18 +21,20 @@ from instagram.items import InstagramHashtagItem, InstagramPostItem, InstagramPo
 #| TAGS LOGGED 22 | USERS LOGGED 1778 | PHOTOS LOGGED 19010 |
 
 
-
+#if __name__ == "__main__":
 f = open('secret.txt', 'r')
 log = open('log.txt', 'w')
 secret = f.read().split(',')
 connection = psycopg2.connect(secret[0])
 cursor = connection.cursor()
+    
 usedUsers = []
 commitCounter = 0
 
 Hashtags = 0
 Photos = 0
 Users = 0
+
 
 def boolean(string):
     if string.lower() == "true":
@@ -41,6 +43,7 @@ def boolean(string):
         return False
     else:
         print("Error in boolean function. Neither true nor false.")
+
 
 def commit():
     global commitCounter
@@ -154,6 +157,7 @@ def logPhotoDirect(j, tag="FromUser"):
         log.write(str(item["tag"]) + " " + str(item["code"]) + " " + str(item["date"]) + " " + str(item["width"]) + " " + str(item["height"]) + " " + str(item["commentCount"]) + " " + str(item["caption"]) + " " + str(item["likes"]) + " " + str(item["ownerID"]) + " " + str(item["ownerUser"]) + " " + str(item["isVideo"]) + " " + str(item["videoViews"]) + " " + str(item["imageID"]) + " " + str(item["entry"]) + " " + str(item["location"]) + " " + str(item["slug"]) + " " + str(item["userTags"]) + " " + str(item["ad"]))
     #yield item
 
+
 #logs photos from a page aka a user page or hashtag page
 def logPhotoPage(j, username, tag="FromUser"):
     global Photos
@@ -195,28 +199,33 @@ def logHashtag(json):
     global Hashtags
     item = InstagramHashtagItem()
     j = json["entry_data"]["TagPage"][0]["tag"]
+    valid = True
     item["tag"] = j["name"]
     item["posts"] = j["media"]["count"]
     item["entry_time"] = time()
-    item["time_to_top"] = time() - j["top_posts"]["nodes"][0]["date"]
-    item["code"] = j["top_posts"]["nodes"][0]["code"]
-    item["date"] = j["top_posts"]["nodes"][0]["date"]
-    item["width"] = j["top_posts"]["nodes"][0]["dimensions"]["width"]
-    item["height"] = j["top_posts"]["nodes"][0]["dimensions"]["height"]
-    item["comment_count"] = j["top_posts"]["nodes"][0]["comments"]["count"]
-    item["caption"] = j["top_posts"]["nodes"][0]["caption"]
-    item["likes"] = j["top_posts"]["nodes"][0]["likes"]["count"]
-    item["ownerID"] = int(j["top_posts"]["nodes"][0]["owner"]["id"])
-    item["isVideo"] = str(j["top_posts"]["nodes"][0]["is_video"])
-    item["imageID"] = int(j["top_posts"]["nodes"][0]["id"])
-    if validTag(item):
-        Hashtags += 1
-        cursor.execute('INSERT INTO insta_hashtags2 (tag, posts, entry_time, time_to_top, code, date, width, height, comment_count, caption, likes, ownerID, isVideo, imageID) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',
-            (item["tag"], item["posts"], item["entry_time"], item["time_to_top"], item["code"], item["date"], item["width"], item["height"], item["comment_count"], item["caption"], item["likes"], item["ownerID"], item["isVideo"], item["imageID"]))    
-    else:
-        log.write(str(item["tag"]) + " " + str(item["posts"]) + " " + str(item["entry_time"]) + " " + str(item["time_to_top"]) + " " + str(item["code"]) + " " + str(item["date"]) + " " + str(item["width"]) + " " + str(item["height"]) + " " + str(item["comment_count"]) + " " + str(item["caption"]) + " " + str(item["likes"]) + " " + str(item["ownerID"]) + " " + str(item["isVideo"]) + " " + str(item["imageID"]))
-    connection.commit()
-    #yield item
+    try:
+        item["time_to_top"] = time() - j["top_posts"]["nodes"][0]["date"]
+        item["code"] = j["top_posts"]["nodes"][0]["code"]
+        item["date"] = j["top_posts"]["nodes"][0]["date"]
+        item["width"] = j["top_posts"]["nodes"][0]["dimensions"]["width"]
+        item["height"] = j["top_posts"]["nodes"][0]["dimensions"]["height"]
+        item["comment_count"] = j["top_posts"]["nodes"][0]["comments"]["count"]
+        item["caption"] = j["top_posts"]["nodes"][0]["caption"]
+        item["likes"] = j["top_posts"]["nodes"][0]["likes"]["count"]
+        item["ownerID"] = int(j["top_posts"]["nodes"][0]["owner"]["id"])
+        item["isVideo"] = str(j["top_posts"]["nodes"][0]["is_video"])
+        item["imageID"] = int(j["top_posts"]["nodes"][0]["id"])
+    except IndexError:
+        valid = False
+    if valid:
+        if validTag(item):
+            Hashtags += 1
+            cursor.execute('INSERT INTO insta_hashtags2 (tag, posts, entry_time, time_to_top, code, date, width, height, comment_count, caption, likes, ownerID, isVideo, imageID) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',
+                (item["tag"], item["posts"], item["entry_time"], item["time_to_top"], item["code"], item["date"], item["width"], item["height"], item["comment_count"], item["caption"], item["likes"], item["ownerID"], item["isVideo"], item["imageID"]))    
+        else:
+            log.write(str(item["tag"]) + " " + str(item["posts"]) + " " + str(item["entry_time"]) + " " + str(item["time_to_top"]) + " " + str(item["code"]) + " " + str(item["date"]) + " " + str(item["width"]) + " " + str(item["height"]) + " " + str(item["comment_count"]) + " " + str(item["caption"]) + " " + str(item["likes"]) + " " + str(item["ownerID"]) + " " + str(item["isVideo"]) + " " + str(item["imageID"]))
+        connection.commit()
+        #yield item
 
 
 def logUser(json):
@@ -248,10 +257,13 @@ class InstagramSpider(scrapy.Spider):
     allowed_domains = ['https://www.instagram.com', 'www.instagram.com']
     start_urls = ["https://www.instagram.com/instagram/"]
 
+    custom_settings = {"LOG_LEVEL" : 'WARNING'}
+
     def __init__(self, low, high, *args, **kwargs):
         super(InstagramSpider, self).__init__(*args, **kwargs)
         self.high = high
         self.low = low
+
 
     def parse(self, response):
         print(self.low + " " + self.high)
@@ -264,55 +276,69 @@ class InstagramSpider(scrapy.Spider):
         for url in urls:
             yield Request(url, callback=self.parseStartHashtag)
 
+
     def parseStartHashtag(self, response):
         html = str((response.xpath("//body")).extract())
-        string = re.search(r"sharedData = (.+?)\;\<\/script\>", html).group(1).replace("\\u2800", "").replace("'", '"').replace("\\\\\"", "'")
-        j = json.loads(string)
+        string = re.search(r"sharedData = (.+?)\;\<\/script\>", html).group(1).replace("\\u2800", "").replace("'", '"').replace("\\\\\"", "'").replace("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\\\\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\", "\\\\").replace("\\\\\\", "\\\\").replace("\\\\\\", "\\\\").replace("/", "\/")
+        
+        try:
+            j = json.loads(string)
+            logHashtag(j)
+            tag = j["entry_data"]["TagPage"][0]["tag"]["name"]
+            codes = []
+            #takes photo codes from top posts
+            for i in j["entry_data"]["TagPage"][0]["tag"]["top_posts"]["nodes"]:
+                codes.append(i["code"])
+            #takes photo codes from media posts
+            for i in j["entry_data"]["TagPage"][0]["tag"]["media"]["nodes"]:
+                codes.append(i["code"])
+            for code in codes:
+                url = "https://www.instagram.com/p/{}/".format(code)
+                yield Request(url, callback=self.parsePhoto, meta={"tag" : tag})
+        except json.decoder.JSONDecodeError as e:
+            i = re.search(r"column ([0-9]+)", str(e)).group(1)
+            print(string[int(i)-20 : int(i)+20])
 
-        logHashtag(j)
-        tag = j["entry_data"]["TagPage"][0]["tag"]["name"]
-        codes = []
-        #takes photo codes from top posts
-        for i in j["entry_data"]["TagPage"][0]["tag"]["top_posts"]["nodes"]:
-            codes.append(i["code"])
-        #takes photo codes from media posts
-        for i in j["entry_data"]["TagPage"][0]["tag"]["media"]["nodes"]:
-            codes.append(i["code"])
-        for code in codes:
-            url = "https://www.instagram.com/p/{}/".format(code)
-            yield Request(url, callback=self.parsePhoto, meta={"tag" : tag})
 
     def parsePhoto(self, response):
         html = str((response.xpath("//body")).extract())
-        string = re.search(r"sharedData = (.+?)\;\<\/script\>", html).group(1).replace("\\u2800", "").replace("'", '"').replace("\\\\\"", "'")
-        j = json.loads(string)
-        jArg = j["entry_data"]["PostPage"][0]["media"]
-        logPhotoDirect(jArg, response.meta["tag"])
-
-        usernames = []
-        #owner of the photo
-        owner = j["entry_data"]["PostPage"][0]["media"]["owner"]["username"]
-        if owner not in usedUsers:
-            usernames.append(owner)
-        #for each comment find the username
-        for j in j["entry_data"]["PostPage"][0]["media"]["comments"]["nodes"]:
-            tempName = j["user"]["username"]
-            #check if this spider instance has already logged user
-            if tempName not in usedUsers:
-                usedUsers.append(tempName)
-                usernames.append(tempName)
-
-        for user in usernames:
-            url = "https://www.instagram.com/{}/".format(user)
-            yield Request(url, callback=self.parseUser, meta={"username" : user})
-
+        string = re.search(r"sharedData = (.+?)\;\<\/script\>", html).group(1).replace("\\u2800", "").replace("'", '"').replace("\\\\\"", "'").replace("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\\\\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\", "\\\\").replace("\\\\\\", "\\\\").replace("\\\\\\", "\\\\").replace("/", "\/")
+        try:
+            j = json.loads(string)
+            jArg = j["entry_data"]["PostPage"][0]["media"]
+            logPhotoDirect(jArg, response.meta["tag"])
+            usernames = []
+            #owner of the photo
+            owner = j["entry_data"]["PostPage"][0]["media"]["owner"]["username"]
+            if owner not in usedUsers:
+                usernames.append(owner)
+            #for each comment find the username
+            for j in j["entry_data"]["PostPage"][0]["media"]["comments"]["nodes"]:
+                tempName = j["user"]["username"]
+                #check if this spider instance has already logged user
+                if tempName not in usedUsers:
+                    usedUsers.append(tempName)
+                    usernames.append(tempName)
+            for user in usernames:
+                url = "https://www.instagram.com/{}/".format(user)
+                yield Request(url, callback=self.parseUser, meta={"username" : user})
+        except json.decoder.JSONDecodeError as e:
+            i = re.search(r"column ([0-9]+)", str(e)).group(1)
+            print(string[int(i)-20 : int(i)+20])
+        
+        
     def parseUser(self, response):
         html = str((response.xpath("//body")).extract())
-        string = re.search(r"sharedData = (.+?)\;\<\/script\>", html).group(1).replace("\\u2800", "").replace("'", '"').replace("\\\\\"", "'")
-        j = json.loads(string)
-        logUser(j)
-        for post in j["entry_data"]["ProfilePage"][0]["user"]["media"]["nodes"]:
-            logPhotoPage(post, username=response.meta["username"])
+        string = re.search(r"sharedData = (.+?)\;\<\/script\>", html).group(1).replace("\\u2800", "").replace("'", '"').replace("\\\\\"", "'").replace("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\\\\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\", "\\\\").replace("\\\\\\", "\\\\").replace("\\\\\\", "\\\\").replace("/", "\/")
+        try:
+            j = json.loads(string)
+            logUser(j)
+            for post in j["entry_data"]["ProfilePage"][0]["user"]["media"]["nodes"]:
+                logPhotoPage(post, username=response.meta["username"])
+        except json.decoder.JSONDecodeError as e:
+            i = re.search(r"column ([0-9]+)", str(e)).group(1)
+            print(string[int(i)-20 : int(i)+20])
+        
 
 
 

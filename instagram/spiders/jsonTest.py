@@ -7,12 +7,13 @@ import psycopg2
 import json
 from instagram.items import InstagramHashtagItem, InstagramPostItem, InstagramPostItem2, InstagramUserItem, InstagramUserItem2
 
-'''
-f = open('secret.txt', 'r')
-log = open('log.txt', 'w')
-secret = f.read().split(',')
-connection = psycopg2.connect(secret[0])
-cursor = connection.cursor()
+
+if __name__ == "__main__":
+    f = open('secret.txt', 'r')
+    log = open('log.txt', 'w')
+    secret = f.read().split(',')
+    #connection = psycopg2.connect(secret[0])
+    #cursor = connection.cursor()
 
 
 def boolean(string):
@@ -164,19 +165,22 @@ class InstagramSpider(scrapy.Spider):
     name = 'jsonTest'
     allowed_domains = ['https://www.instagram.com', 'www.instagram.com']
     #start_urls = ["https://www.instagram.com/p/BOQCqAOgqZE/"]
-    
+    start_urls = ["https://www.instagram.com/nike/"]
     #start_urls = ["https://www.instagram.com/explore/tags/instagood/"]
 
-    def __init__(self, name, *args, **kwargs):
-        super(InstagramSpider, self).__init__(*args, **kwargs)
-        self.start_urls = start_urls = ["https://www.instagram.com/{}/".format(name)]
+    #def __init__(self, name, *args, **kwargs):
+        #super(InstagramSpider, self).__init__(*args, **kwargs)
+        #self.start_urls = start_urls = ["https://www.instagram.com/{}/".format(name)]
 
-    def parseHashtag(self, response):
+    def parse(self, response):
         html = str((response.xpath("//body")).extract())
         string = re.search(r"sharedData = (.+?)\;\<\/script\>", html).group(1).replace("\\u2800", "").replace("'", '"').replace("\\\\\"", "'")
         j = json.loads(string)
-        print(j["entry_data"]["PostPage"][0]["media"]["comments"]["nodes"][0]["username"])
-        print(j["entry_data"]["PostPage"][0]["media"]["comments"]["nodes"].keys())
+
+        print(j["config"]["viewer"].keys())
+        #print(j["entry_data"]["TagPage"][0]["top_posts"]["nodes"][0].keys())
+        #print(j["entry_data"]["PostPage"][0]["media"].keys())
+        #print(j["entry_data"]["PostPage"][0]["media"]["comments"]["nodes"].keys())
 
     def parsePhoto(self, response):
         html = str((response.xpath("//body")).extract())
@@ -217,7 +221,7 @@ class InstagramSpider(scrapy.Spider):
 
 
 
-    def parse(self, response):
+    def parseUser(self, response):
         html = str((response.xpath("//body")).extract())
         string = re.search(r"sharedData = (.+?)\;\<\/script\>", html).group(1).replace("\\u2800", "").replace("'", '"').replace("\\\\\"", "'")
         j = json.loads(string)
@@ -227,4 +231,3 @@ class InstagramSpider(scrapy.Spider):
         
 
 
-'''

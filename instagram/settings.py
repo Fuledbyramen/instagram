@@ -9,7 +9,7 @@
 #     http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 #     http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
 
-BOT_NAME = 'instagram'
+BOT_NAME = 'instagram_bot'
 
 SPIDER_MODULES = ['instagram.spiders']
 NEWSPIDER_MODULE = 'instagram.spiders'
@@ -23,7 +23,8 @@ DOWNLOAD_DELAY = 0.2
 CONCURRENT_REQUESTS_PER_DOMAIN = 16
 CONCURRENT_REQUESTS = 32
 
-LOG_LEVEL = 'WARNING'
+LOG_LEVEL = 'DEBUG'
+#LOG_LEVEL = 'WARNING'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'instagram (+http://www.yourdomain.com)'

@@ -1,5 +1,5 @@
 import psycopg2
-f = open('C:\\Users\\zachc\\Desktop\\instagram\\instagram\\spiders\\secret.txt', 'r')
+f = open('C:\\Users\\zachc\\Desktop\\instagram_bot\\instagram\\spiders\\secret.txt', 'r')
 secret = f.read().split(',')
 connection = psycopg2.connect(secret[0])
 cursor = connection.cursor()
