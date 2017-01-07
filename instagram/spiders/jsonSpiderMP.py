@@ -150,7 +150,7 @@ def logPhotoDirect(j, tag="FromUser"):
     except (KeyError, TypeError):
         item["ad"] = False    
     if validPhoto(item):
-        cursor.execute('INSERT INTO insta_posts2 (tag, code, date, width, height, commentCount, caption, likes, ownerID, ownerUser, isVideo, videoViews, imageID, entry, location, slug, userTags, ad) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', 
+        cursor.execute('INSERT INTO insta_posts3 (tag, code, date, width, height, commentCount, caption, likes, ownerID, ownerUser, isVideo, videoViews, imageID, entry, location, slug, userTags, ad) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', 
             (item["tag"], item["code"], item["date"], item["width"], item["height"], item["commentCount"], item["caption"], item["likes"], item["ownerID"], item["ownerUser"], item["isVideo"], item["videoViews"], item["imageID"], item["entry"], item["location"], item["slug"], item["userTags"], item["ad"],))    
         Photos += 1
     else:
@@ -187,7 +187,7 @@ def logPhotoPage(j, username, tag="FromUser"):
     item["userTags"] = 0
     item["ad"] = False
     if validPhoto:
-        cursor.execute('INSERT INTO insta_posts2 (tag, code, date, width, height, commentCount, caption, likes, ownerID, isVideo, videoViews, imageID, entry, location, slug, userTags, ad) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', 
+        cursor.execute('INSERT INTO insta_posts3 (tag, code, date, width, height, commentCount, caption, likes, ownerID, isVideo, videoViews, imageID, entry, location, slug, userTags, ad) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', 
             (item["tag"], item["code"], item["date"], item["width"], item["height"], item["commentCount"], item["caption"], item["likes"], item["ownerID"], item["isVideo"], item["videoViews"], item["imageID"], item["entry"], item["location"], item["slug"], item["userTags"], item["ad"],))    
         Photos += 1
     else:
@@ -255,7 +255,7 @@ def logUser(json):
 class InstagramSpider(scrapy.Spider):
     name = 'jsonSpiderMP'
     allowed_domains = ['https://www.instagram.com', 'www.instagram.com']
-    start_urls = ["https://www.instagram.com/instagram/"]
+    start_urls = ["https://www.instagram.com/"]
 
     custom_settings = {"LOG_LEVEL" : 'WARNING'}
 

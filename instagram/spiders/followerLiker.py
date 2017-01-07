@@ -6,7 +6,7 @@ from time import time, sleep
 import psycopg2
 import json
 
-
+#if __name__ == "__main__":
 f = open('secret.txt', 'r')
 secret = f.read().split(',')
 
@@ -68,7 +68,6 @@ class InstagramSpider(scrapy.Spider):
     def loggedIn(self, response):
         global account, cursor
         html = str((response.xpath("//body")).extract())
-        print(html)
         string = re.search(r"\[\'\<body\>\<p\>(.+?)\<\/p\>\<\/body\>\'\]", html).group(1)
         csrf = re.search(r"csrftoken\=(.+?)\;", str(response.headers)).group(1)
         sessid = re.search(r"sessionid=(.+?)\;", str(response.headers)).group(1)
@@ -77,9 +76,9 @@ class InstagramSpider(scrapy.Spider):
         if j["user"] == account[0] and j["authenticated"] == True:
             print("Logged in successfully")
 
-            cursor.execute("SELECT * FROM testList3 LIMIT 300")
+            cursor.execute("SELECT code, username FROM testList3")
             accounts = cursor.fetchall()
-            action = "unfollow" 
+            action = "follow" 
 
             for i in range(2):
                 for code, account in accounts:
@@ -94,10 +93,10 @@ class InstagramSpider(scrapy.Spider):
                         dont_filter=True,
                         callback=self.relationship)
 
-                #if action == "follow":
-                    #action = "unfollow"
-                #else:
-                    #action = "follow"
+                if action == "follow":
+                    action = "unfollow"
+                else:
+                    action = "follow"
         else:
             print("Didn't log in.")
 
@@ -107,11 +106,11 @@ class InstagramSpider(scrapy.Spider):
         try:
             string = re.search(r"body\>\<p\>(.+?)\<\/", html).group(1)
             j = json.loads(string)
-            print(j["status"])
+            #print(j["status"])
         except:
             string = re.search(r"sharedData = (.+?)\;\<\/script\>", html).group(1).replace("\\U0001f47b", "").replace("\\u2800", "").replace("'", '"').replace("\\\\\"", "'").replace("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\\\\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\", "\\\\").replace("\\\\\\", "\\\\").replace("\\\\\\", "\\\\").replace("/", "\/")
             j = json.loads(string)
-            print(j["entry_data"]["ProfilePage"][0]["user"]["followed_by_viewer"])
+            #print(j["entry_data"]["ProfilePage"][0]["user"]["followed_by_viewer"])
 
 
 

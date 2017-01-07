@@ -3,9 +3,9 @@ from multiprocessing import Pool
 from time import sleep
 
 wd = "C:/Users/zachc/Desktop/instagram_bot/instagram/spiders"
-rnge = 50
-spiderCount = 40
-start = 153000
+rnge = 880
+spiderCount = 50
+start = 156000
 startingIndicies = []
 
 for i in range(start, start + (rnge * spiderCount), rnge):
