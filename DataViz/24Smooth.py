@@ -13,7 +13,7 @@ secret = f.read().split(',')
 conn = psycopg2.connect(secret[0])
 cursor = conn.cursor()
 
-limit = 50000000
+limit = 500000
 cursor.execute('SELECT date, likes FROM insta_posts LIMIT %s;', (limit,))
 
 results = cursor.fetchall()
@@ -80,8 +80,10 @@ for day, hour in week.items():
     counter += 1
 
 legend = plt.legend(loc='upper left', shadow=True)
+
 plt.xticks(np.arange(0, 24, 1.0))
 plt.xlabel('Hour of day', fontsize=14)
 plt.ylabel('Average likes', fontsize=14)
 plt.title('Average likes per hour across {} posts'.format(limit), fontsize=16)
+plt.savefig('test.png', transparent=True)
 plt.show()

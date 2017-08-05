@@ -23,8 +23,8 @@ DOWNLOAD_DELAY = 0.2
 CONCURRENT_REQUESTS_PER_DOMAIN = 16
 CONCURRENT_REQUESTS = 32
 
-LOG_LEVEL = 'DEBUG'
-#LOG_LEVEL = 'WARNING'
+#LOG_LEVEL = 'DEBUG'
+LOG_LEVEL = 'WARNING'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'instagram (+http://www.yourdomain.com)'
@@ -47,7 +47,8 @@ ROBOTSTXT_OBEY = False
 #COOKIES_ENABLED = False
 
 # Disable Telnet Console (enabled by default)
-#TELNETCONSOLE_ENABLED = False
+TELNETCONSOLE_ENABLED = True
+TELNETCONSOLE_PORT = [17000, 18000]
 
 # Override the default request headers:
 #DEFAULT_REQUEST_HEADERS = {

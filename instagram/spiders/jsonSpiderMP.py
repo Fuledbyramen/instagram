@@ -5,8 +5,10 @@ from sqlite3 import dbapi2 as sqlite
 from time import time
 import psycopg2
 import json
-from instagram.items import InstagramHashtagItem, InstagramPostItem, InstagramPostItem2, InstagramUserItem, InstagramUserItem2
-
+try:
+    from instagram.items import InstagramHashtagItem, InstagramPostItem, InstagramPostItem2, InstagramUserItem, InstagramUserItem2
+except ImportError:
+    pass
 
 #| TAGS LOGGED 17 | USERS LOGGED 1357 | PHOTOS LOGGED 15176 | 22 MINUTES
 # Ratios - 1.3 minutes per tag
@@ -19,6 +21,11 @@ from instagram.items import InstagramHashtagItem, InstagramPostItem, InstagramPo
 #| TAGS LOGGED 19 | USERS LOGGED 1916 | PHOTOS LOGGED 19525 |
 #| TAGS LOGGED 21 | USERS LOGGED 1559 | PHOTOS LOGGED 17139 |
 #| TAGS LOGGED 22 | USERS LOGGED 1778 | PHOTOS LOGGED 19010 |
+
+
+#Have to make it smarter
+#Regex can rmove all names and captions and bios that bug it out
+#Using a dynamic regex with keys()
 
 
 #if __name__ == "__main__":
@@ -128,6 +135,7 @@ def logPhotoDirect(j, tag="FromUser"):
     item["likes"] = j["likes"]["count"]
     item["ownerID"] = int(j["owner"]["id"])
     item["ownerUser"] = j["owner"]["username"]
+    ownerUser = j["owner"]["username"]
     item["isVideo"] = j["is_video"]
     item["imageID"] = int(j["id"])
     item["entry"] = time()
@@ -150,8 +158,8 @@ def logPhotoDirect(j, tag="FromUser"):
     except (KeyError, TypeError):
         item["ad"] = False    
     if validPhoto(item):
-        cursor.execute('INSERT INTO insta_posts3 (tag, code, date, width, height, commentCount, caption, likes, ownerID, ownerUser, isVideo, videoViews, imageID, entry, location, slug, userTags, ad) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', 
-            (item["tag"], item["code"], item["date"], item["width"], item["height"], item["commentCount"], item["caption"], item["likes"], item["ownerID"], item["ownerUser"], item["isVideo"], item["videoViews"], item["imageID"], item["entry"], item["location"], item["slug"], item["userTags"], item["ad"],))    
+        cursor.execute('INSERT INTO insta_posts4 (tag, code, date, width, height, commentCount, caption, likes, ownerID, ownerUser, isVideo, videoViews, imageID, entry, location, slug, userTags, ad) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', 
+            (item["tag"], item["code"], item["date"], item["width"], item["height"], item["commentCount"], item["caption"], item["likes"], item["ownerID"], "testUsername", item["isVideo"], item["videoViews"], item["imageID"], item["entry"], item["location"], item["slug"], item["userTags"], item["ad"],))    
         Photos += 1
     else:
         log.write(str(item["tag"]) + " " + str(item["code"]) + " " + str(item["date"]) + " " + str(item["width"]) + " " + str(item["height"]) + " " + str(item["commentCount"]) + " " + str(item["caption"]) + " " + str(item["likes"]) + " " + str(item["ownerID"]) + " " + str(item["ownerUser"]) + " " + str(item["isVideo"]) + " " + str(item["videoViews"]) + " " + str(item["imageID"]) + " " + str(item["entry"]) + " " + str(item["location"]) + " " + str(item["slug"]) + " " + str(item["userTags"]) + " " + str(item["ad"]))
@@ -187,7 +195,7 @@ def logPhotoPage(j, username, tag="FromUser"):
     item["userTags"] = 0
     item["ad"] = False
     if validPhoto:
-        cursor.execute('INSERT INTO insta_posts3 (tag, code, date, width, height, commentCount, caption, likes, ownerID, isVideo, videoViews, imageID, entry, location, slug, userTags, ad) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', 
+        cursor.execute('INSERT INTO insta_posts4 (tag, code, date, width, height, commentCount, caption, likes, ownerID, isVideo, videoViews, imageID, entry, location, slug, userTags, ad) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', 
             (item["tag"], item["code"], item["date"], item["width"], item["height"], item["commentCount"], item["caption"], item["likes"], item["ownerID"], item["isVideo"], item["videoViews"], item["imageID"], item["entry"], item["location"], item["slug"], item["userTags"], item["ad"],))    
         Photos += 1
     else:
@@ -279,7 +287,7 @@ class InstagramSpider(scrapy.Spider):
 
     def parseStartHashtag(self, response):
         html = str((response.xpath("//body")).extract())
-        string = re.search(r"sharedData = (.+?)\;\<\/script\>", html).group(1).replace("\\u2800", "").replace("'", '"').replace("\\\\\"", "'").replace("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\\\\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\", "\\\\").replace("\\\\\\", "\\\\").replace("\\\\\\", "\\\\").replace("/", "\/")
+        string = re.search(r"sharedData = (.+?)\;\<\/script\>", html).group(1).replace("'", '"').replace("\\u2800", "").replace("\\\\\"", "'").replace("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\\\\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\", "\\\\").replace("\\\\\\", "\\\\").replace("\\\\\\", "\\\\").replace("/", "\/")
         
         try:
             j = json.loads(string)
@@ -302,10 +310,10 @@ class InstagramSpider(scrapy.Spider):
 
     def parsePhoto(self, response):
         html = str((response.xpath("//body")).extract())
-        string = re.search(r"sharedData = (.+?)\;\<\/script\>", html).group(1).replace("\\u2800", "").replace("'", '"').replace("\\\\\"", "'").replace("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\\\\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\", "\\\\").replace("\\\\\\", "\\\\").replace("\\\\\\", "\\\\").replace("/", "\/")
+        string = re.search(r"sharedData = (.+?)\;\<\/script\>", html).group(1).replace("'", '"').replace("\\u2800", "").replace("\\\\\"", "'").replace("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\\\\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\", "\\\\").replace("\\\\\\", "\\\\").replace("\\\\\\", "\\\\").replace("/", "\/")
         try:
             j = json.loads(string)
-            jArg = j["entry_data"]["PostPage"][0]["media"]
+             
             logPhotoDirect(jArg, response.meta["tag"])
             usernames = []
             #owner of the photo
@@ -329,7 +337,15 @@ class InstagramSpider(scrapy.Spider):
         
     def parseUser(self, response):
         html = str((response.xpath("//body")).extract())
-        string = re.search(r"sharedData = (.+?)\;\<\/script\>", html).group(1).replace("\\u2800", "").replace("'", '"').replace("\\\\\"", "'").replace("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\\\\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\", "\\\\").replace("\\\\\\", "\\\\").replace("\\\\\\", "\\\\").replace("/", "\/")
+        string = re.search(r"sharedData = (.+?)\;\<\/script\>", html).group(1).replace("'", '"').replace("\\u2800", "").replace("\\\\\"", "'").replace("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\\\\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\\\\\", "\\\\").replace("\\\\\\\\\\", "\\\\").replace("\\\\\\", "\\\\").replace("\\\\\\", "\\\\").replace("/", "\/")
+        captions = re.findall(r"caption\"\: \"(.+?)\"\, \"\w+\"\: \{", string)
+        for caption in captions:
+            string = string.replace(caption, "")
+        try:
+            bio = re.search(r"\"biography\"\: \"(.+?)\"\, \"\w+\"\: ", string).group(1)
+            string = string.replace(bio, "")
+        except AttributeError:
+            pass
         try:
             j = json.loads(string)
             logUser(j)

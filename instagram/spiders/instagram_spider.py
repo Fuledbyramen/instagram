@@ -1,3 +1,4 @@
+'''
 import scrapy
 import re
 from scrapy import Request, FormRequest
@@ -5,7 +6,7 @@ from sqlite3 import dbapi2 as sqlite
 from time import time
 import psycopg2
 
-'''
+
 if __name__ == "__main__":
     f = open('secret.txt', 'r')
     log = open('log.txt', 'w')

@@ -1,3 +1,4 @@
+'''
 import scrapy
 import re
 from scrapy import Request, FormRequest
@@ -7,7 +8,7 @@ import psycopg2
 import json
 from instagram.items import InstagramHashtagItem, InstagramPostItem, InstagramPostItem2, InstagramUserItem, InstagramUserItem2
 
-'''
+
 f = open('secret.txt', 'r')
 log = open('log.txt', 'w')
 secret = f.read().split(',')

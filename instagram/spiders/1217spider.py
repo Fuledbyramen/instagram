@@ -1,3 +1,4 @@
+'''
 import scrapy
 import re
 from scrapy import Request, FormRequest
@@ -6,7 +7,7 @@ from time import time
 import psycopg2
 from instagram.items import InstagramHashtagItem, InstagramPostItem, InstagramUserItem
 
-'''
+
 #Take in hashtag names, log top posts,
 #users from posts then those users, continue on
 
